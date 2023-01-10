@@ -1,0 +1,70 @@
+import cv2 as cv
+import numpy as np
+
+def MAPPING_1Order_button():
+    def _1order(im,fact):
+        old_r,old_c,old_k=im.shape
+        new_row=old_r*fact
+        new_column=old_c*fact
+        new_im = np.zeros((new_row,new_column,old_k))
+        old_r=range(old_r)
+        old_c=range(old_c)
+        old_k=range(old_k)           
+        for channel in old_k:           
+            for row in old_r:                                    
+                    for column in old_c:                         
+                        new_im[fact*row,column*fact,channel]=im[row,column,channel]
+        for channel in old_k:
+            for row in old_r:
+                    for column in old_c:
+                        ii=1
+                        if fact*(column+1)<new_column :   
+                            if(new_im[fact*row,fact*column,channel] <= new_im[fact*row,fact*(column+1),channel]):
+                                array=range(fact*column+1 ,fact*(column+1))
+                                minum=new_im[fact*row,fact*column,channel]
+                                maxum=new_im[fact*row,fact*(column+1),channel] 
+                                for counter in array:
+                                    new_im[fact*row,counter,channel]=round(((maxum - minum)/fact)*ii + minum)
+                                    ii+=1
+                            elif (new_im[fact*row,fact*column,channel] > new_im[fact*row,fact*(column+1),channel])  :
+                                array=range(fact*column+1 ,fact*(column+1))
+                                minum=new_im[fact*row,fact*column,channel]
+                                maxum=new_im[fact*row,fact*(column+1),channel]
+                                for counter in array:
+                                    new_im[fact*row,counter,channel]=round(((maxum - minum)/fact)*ii + minum)
+                                    ii+=1
+                        else :
+                            new_im[fact*row,fact*column+1:new_column-1,channel]=new_im[fact*row,fact*column,channel]            
+                            break
+        old_c=range(new_column)      
+        for channel in old_k:
+            for row in old_r:                
+                    for column in old_c:
+                        ii=1
+                        if  fact*(row+1)<new_row   :
+                                if(new_im[fact*row,column,channel] <= new_im[fact*(row+1),column,channel] ):  
+                                    array=range(fact*row+1 ,fact*(row+1))  
+                                    minum=new_im[fact*row,column,channel]
+                                    maxum=new_im[fact*(row+1),column,channel]
+                                    for counter in array:
+                                        
+                                        new_im[counter,column,channel]=np.round(((maxum - minum)/fact)*ii + minum)
+                                        ii+=1
+                                elif new_im[fact*row,column,channel] > new_im[fact*(row+1),column,channel] :
+                                    array=range(fact*row+1 ,fact*(row+1))
+                                    maxum=new_im[fact*row,column,channel]
+                                    minum=new_im[fact*(row+1),column,channel]
+                                    for counter in array:
+                                        new_im[counter,column,channel]=np.round(((maxum - minum)/fact)*ii + minum)
+                                        ii+=1
+                        else :
+                            new_im[fact*row+1:new_row-1,column,channel] = new_im[fact*row,column,channel]        
+        new_im=np.uint8(new_im)
+        cv.imshow("Old",im)
+        cv.imshow("New",new_im)
+        cv.waitKey(0)
+
+        
+
+    im=cv.imread(r'D:\new phone\pictures\1bc53796127aa3b51b651569999483eb.jpg')
+    _1order(im,3)             
